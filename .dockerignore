@@ -1,0 +1,9 @@
+data/
+tools/
+showcase_public/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-static/
+**/__pycache__/
+**/.pytest_cache/
+.git/

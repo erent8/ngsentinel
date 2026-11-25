@@ -1,0 +1,12 @@
+data/
+__pycache__/
+*.pyc
+.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+.venv/
+tools/
+
+showcase_public/
+frontend/dist-static/
+*.tsbuildinfo
