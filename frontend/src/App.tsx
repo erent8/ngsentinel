@@ -20,7 +20,9 @@ const NAV = [
 
 export default function App() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0); // statement body: scrollTo returns a Promise in newer browsers, which React would treat as a cleanup function
+  }, [pathname]);
   return (
     <div className="app">
       <aside className="sidebar">

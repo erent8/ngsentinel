@@ -67,7 +67,9 @@ def write_json(path: Path, data) -> None:
 
 def copy_text(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
-    dst.write_text(strip_paths(src.read_text(encoding="utf-8", errors="replace")), encoding="utf-8")
+    text = strip_paths(src.read_text(encoding="utf-8", errors="replace"))
+    # reports made before v1.0.1 embed plotly.js with a literal U+FFFD; its JS escape behaves identically
+    dst.write_text(text.replace(chr(0xFFFD), "\\uFFFD"), encoding="utf-8")
 
 
 def rerun_multiqc(run_dir: Path, dst_html: Path) -> bool:
@@ -138,7 +140,12 @@ def build_frontend(out: Path, repo_url: str, live_url: str) -> None:
     npx = "npx.cmd" if os.name == "nt" else "npx"
     subprocess.run([npx, "vite", "build"], cwd=PROJECT / "frontend", env=env, check=True)
     html = (PROJECT / "frontend" / "dist-static" / "index.html").read_text(encoding="utf-8")
-    (out / "index.html").write_text(page_fragment(html), encoding="utf-8")
+    if os.environ.get("FULL_HTML") == "1":  # complete document, e.g. for GitHub Pages
+        html = re.sub(r'<meta name="viewport"[^>]*>', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">', html)
+        html = re.sub(r'\s*<link rel="icon"[^>]*>', "", html)
+        (out / "index.html").write_text(html, encoding="utf-8")
+    else:  # fragment for hosts that add their own document skeleton (Claude Artifacts)
+        (out / "index.html").write_text(page_fragment(html), encoding="utf-8")
 
 
 def page_fragment(html: str) -> str:
